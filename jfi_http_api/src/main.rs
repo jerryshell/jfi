@@ -10,6 +10,10 @@ async fn main() {
         .route(
             "/jerryIndex/fundCode/:fund_code",
             get(get_jerry_index_by_fund_code),
+        )
+        .route(
+            "/baiduIndex/keyword/:keyword",
+            get(get_baidu_index_by_keyword),
         );
 
     let port = env::var("PORT")
@@ -34,5 +38,15 @@ async fn get_jerry_index_by_fund_code(Path(fund_code): Path<String>) -> Json<Val
         "code": 200,
         "message": "ok",
         "data": jerry_index,
+    }))
+}
+
+async fn get_baidu_index_by_keyword(Path(keyword): Path<String>) -> Json<Value> {
+    println!("keyword {}", keyword);
+    Json(json!({
+        "success": true,
+        "code": 200,
+        "message": "ok",
+        "data": keyword,
     }))
 }
