@@ -8,11 +8,11 @@ async fn main() {
     let app = Router::new()
         .route("/", get(|| async { "Hello, World!" }))
         .route(
-            "/jerryIndex/fundCode/:fund_code",
+            "/fund/jerryIndex/fundCode/:fund_code",
             get(get_jerry_index_by_fund_code),
         )
         .route(
-            "/baiduIndex/keyword/:keyword",
+            "/fund/baiduIndex/keyword/:keyword",
             get(get_baidu_index_by_keyword),
         );
 
@@ -43,10 +43,12 @@ async fn get_jerry_index_by_fund_code(Path(fund_code): Path<String>) -> Json<Val
 
 async fn get_baidu_index_by_keyword(Path(keyword): Path<String>) -> Json<Value> {
     println!("keyword {}", keyword);
+    let baidu_index = jfi_lib::get_baidu_index_by_keyword(&keyword).await;
+    println!("baidu_index {:?}", baidu_index);
     Json(json!({
         "success": true,
         "code": 200,
         "message": "ok",
-        "data": keyword,
+        "data": baidu_index,
     }))
 }
