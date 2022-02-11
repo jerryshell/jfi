@@ -1,0 +1,1 @@
+web: ./target/release/jfi_http_api
