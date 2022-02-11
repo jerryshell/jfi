@@ -11,6 +11,15 @@ struct GrowthRateResponsePayload {
     unit_money: String,
 }
 
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BaiduIndex {
+    pub baidu_date_list: Vec<String>,
+    pub baidu_all_index_list: Vec<usize>,
+    pub baidu_all_index_list_sum: usize,
+    pub baidu_all_index_list_avg: usize,
+}
+
 #[derive(Debug)]
 struct GrowthRate {
     timestmp: i64,
@@ -89,6 +98,42 @@ pub async fn calculate_jerry_index_by_fund_code(fund_code: &str) -> f64 {
     calculate_jerry_index_by_growth_rate_vec(&growth_rate_vec)
 }
 
+pub async fn get_baidu_index_by_keyword(keyword: &str) -> BaiduIndex {
+    let client = get_client();
+    let url = format!("https://index.chinaz.com/{}/180", keyword);
+    let response = client.get(url).send().await.unwrap().text().await.unwrap();
+    let date_str = response
+        .split("indexchart.baiduDate = [")
+        .last()
+        .unwrap()
+        .split("];")
+        .next()
+        .unwrap();
+    let date_str_vec = date_str
+        .split(',')
+        .map(|item| item.replace("\"", ""))
+        .collect::<Vec<String>>();
+    let index_str = response
+        .split("indexchart.baiduAllIndex = [")
+        .last()
+        .unwrap()
+        .split("];")
+        .next()
+        .unwrap();
+    let index_vec = index_str
+        .split(',')
+        .map(|item| item.trim().parse::<usize>().unwrap())
+        .collect::<Vec<_>>();
+    let sum = index_vec.iter().sum::<usize>();
+    let avg = sum / index_vec.len();
+    BaiduIndex {
+        baidu_date_list: date_str_vec,
+        baidu_all_index_list: index_vec,
+        baidu_all_index_list_sum: sum,
+        baidu_all_index_list_avg: avg,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #[tokio::test]
@@ -113,5 +158,15 @@ mod tests {
     async fn test_calculate_jerry_index_by_fund_code() {
         let jerry_index = crate::calculate_jerry_index_by_fund_code("110026").await;
         dbg!(jerry_index);
+    }
+
+    #[tokio::test]
+    async fn test_get_baidu_index_by_keyword() {
+        let baidu_index = crate::get_baidu_index_by_keyword("基金").await;
+        assert_eq!(
+            baidu_index.baidu_date_list.len(),
+            baidu_index.baidu_all_index_list.len()
+        );
+        dbg!(baidu_index);
     }
 }
