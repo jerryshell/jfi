@@ -7,6 +7,7 @@ jobs:
     name: ${{ matrix.os }} for ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
+    fail-fast: false
     strategy:
       matrix:
         target:
@@ -18,7 +19,7 @@ jobs:
           # - mipsel-unknown-linux-musl
           # - mips64-unknown-linux-gnuabi64
           # - mips64el-unknown-linux-gnuabi64
-          - riscv64gc-unknown-linux-gnu
+          # - riscv64gc-unknown-linux-gnu
           - x86_64-pc-windows-msvc
           - x86_64-apple-darwin
           # - x86_64-unknown-freebsd
@@ -87,14 +88,14 @@ jobs:
           #   strip: false
           #   compress: false
           #   cargo_flags: "--no-default-features"
-          - os: ubuntu-latest
-            target: riscv64gc-unknown-linux-gnu
-            artifact_name: target/riscv64gc-unknown-linux-gnu/release/jfi_http_api
-            release_name: riscv64gc-unknown-linux-gnu
-            cross: true
-            strip: false
-            compress: false
-            cargo_flags: "--no-default-features"
+          # - os: ubuntu-latest
+          #   target: riscv64gc-unknown-linux-gnu
+          #   artifact_name: target/riscv64gc-unknown-linux-gnu/release/jfi_http_api
+          #   release_name: riscv64gc-unknown-linux-gnu
+          #   cross: true
+          #   strip: false
+          #   compress: false
+          #   cargo_flags: "--no-default-features"
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             artifact_name: target/x86_64-pc-windows-msvc/release/jfi_http_api.exe
