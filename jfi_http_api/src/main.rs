@@ -1,12 +1,11 @@
-use std::{env, net::SocketAddr};
-
 use axum::{extract::Path, routing::get, Json, Router};
 use serde_json::{json, Value};
+use std::{env, net::SocketAddr};
+use tower_http::cors::{any, CorsLayer};
 
 #[tokio::main]
 async fn main() {
     let app = Router::new()
-        .route("/", get(|| async { "Hello, World!" }))
         .route(
             "/fund/jerryIndex/fundCode/:fund_code",
             get(get_jerry_index_by_fund_code),
@@ -14,10 +13,11 @@ async fn main() {
         .route(
             "/fund/baiduIndex/keyword/:keyword",
             get(get_baidu_index_by_keyword),
-        );
+        )
+        .layer(CorsLayer::new().allow_origin(any()).allow_methods(any()));
 
     let port = env::var("PORT")
-        .unwrap_or_else(|_| "3000".to_string())
+        .unwrap_or_else(|_| "8080".to_string())
         .parse()
         .expect("PORT must be a number");
 
