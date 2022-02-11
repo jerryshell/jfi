@@ -81,7 +81,7 @@ fn calculate_jerry_index_by_growth_rate_vec(growth_rate_vec: &[f64]) -> f64 {
     let d5_sum = growth_rate_vec.iter().take(5).sum::<f64>();
     let d123_sum = growth_rate_vec.iter().take(123).sum::<f64>();
     let d123_sum_d25_avg = d123_sum / 25f64;
-    d5_sum - d123_sum_d25_avg
+    ((d5_sum - d123_sum_d25_avg) * 1000f64).round() / 1000f64
 }
 
 pub async fn calculate_jerry_index_by_fund_code(fund_code: &str) -> f64 {
