@@ -1,3 +1,5 @@
+use std::{env, net::SocketAddr};
+
 use axum::{extract::Path, routing::get, Json, Router};
 use serde_json::{json, Value};
 
@@ -10,6 +12,13 @@ async fn main() {
             get(get_jerry_index_by_fund_code),
         );
 
+    let port = env::var("PORT")
+        .unwrap_or_else(|_| "3000".to_string())
+        .parse()
+        .expect("PORT must be a number");
+
+    let addr = SocketAddr::from(([0, 0, 0, 0], port));
+    println!("listening on {}", addr);
     axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
         .serve(app.into_make_service())
         .await
