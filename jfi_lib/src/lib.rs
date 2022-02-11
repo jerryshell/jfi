@@ -14,7 +14,6 @@ struct GrowthRateResponsePayload {
 #[derive(Debug)]
 struct GrowthRate {
     timestmp: i64,
-    nav: f64,
     rate: f64,
 }
 
@@ -38,14 +37,14 @@ async fn get_growth_rate_vec_by_fund_code(fund_code: &str) -> Result<Vec<GrowthR
         .unwrap();
     let reponse_payload_vec =
         serde_json::from_str::<Vec<GrowthRateResponsePayload>>(json_str).unwrap();
-    let growth_rate_vec = reponse_payload_vec
+    let mut growth_rate_vec = reponse_payload_vec
         .iter()
         .map(|item| GrowthRate {
             timestmp: item.x,
-            nav: item.y,
             rate: item.equity_return,
         })
         .collect::<Vec<GrowthRate>>();
+    growth_rate_vec.sort_by_key(|item| item.timestmp);
     Ok(growth_rate_vec)
 }
 
@@ -76,7 +75,7 @@ fn calculate_jerry_index_by_growth_rate_vec(growth_rate_vec: &[f64]) -> f64 {
     d5_sum - d123_sum_d25_avg
 }
 
-async fn calculate_jerry_index_by_fund_code(fund_code: &str) -> f64 {
+pub async fn calculate_jerry_index_by_fund_code(fund_code: &str) -> f64 {
     let growth_rate_vec = get_growth_rate_vec_by_fund_code(fund_code).await.unwrap();
     let mut growth_rate_vec = growth_rate_vec
         .iter()
@@ -99,7 +98,6 @@ mod tests {
             .unwrap();
         let growth_rate = growth_rate_vec.get(0).unwrap();
         assert_eq!(growth_rate.timestmp, 1316448000000);
-        assert_eq!(growth_rate.nav, 1.0);
         assert_eq!(growth_rate.rate, 0.0);
     }
 

@@ -1,2 +1,5 @@
 [workspace]
 members = ["jfi_lib"]
+
+[profile.release]
+lto = true
