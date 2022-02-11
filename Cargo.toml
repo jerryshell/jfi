@@ -1,5 +1,5 @@
 [workspace]
-members = ["jfi_lib"]
+members = ["jfi_lib", "jfi_http_api"]
 
 [profile.release]
 lto = true
