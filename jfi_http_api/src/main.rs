@@ -30,6 +30,9 @@ async fn get_jerry_index_by_fund_code(Path(fund_code): Path<String>) -> Json<Val
     let jerry_index = jfi_lib::calculate_jerry_index_by_fund_code(&fund_code).await;
     println!("jerry_index {}", jerry_index);
     Json(json!({
+        "success": true,
+        "code": 200,
+        "message": "ok",
         "data": jerry_index,
     }))
 }
