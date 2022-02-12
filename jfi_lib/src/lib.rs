@@ -1,4 +1,5 @@
 use anyhow::Result;
+use cached::proc_macro::cached;
 use serde_derive::{Deserialize, Serialize};
 use serde_json::Value;
 
@@ -20,7 +21,7 @@ pub struct BaiduIndex {
     pub baidu_all_index_list_avg: usize,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct GrowthRate {
     pub timestmp: i64,
     pub rate: f64,
@@ -33,7 +34,8 @@ async fn get_client() -> reqwest::Client {
         .unwrap()
 }
 
-pub async fn get_growth_rate_vec_by_fund_code(fund_code: &str) -> Result<Vec<GrowthRate>> {
+#[cached(time = 3600, result = true)]
+pub async fn get_growth_rate_vec_by_fund_code(fund_code: String) -> Result<Vec<GrowthRate>> {
     let client = get_client().await;
     let url = format!("https://fund.eastmoney.com/pingzhongdata/{}.js", fund_code);
     let response = client.get(url).send().await?.text().await?;
@@ -57,7 +59,8 @@ pub async fn get_growth_rate_vec_by_fund_code(fund_code: &str) -> Result<Vec<Gro
     Ok(growth_rate_vec)
 }
 
-pub async fn get_expect_growth_rate_by_fund_code(fund_code: &str) -> Result<f64> {
+#[cached(time = 30, result = true)]
+pub async fn get_expect_growth_rate_by_fund_code(fund_code: String) -> Result<f64> {
     let client = get_client().await;
     let url = format!("https://fundmobapi.eastmoney.com/FundMNewApi/FundMNFInfo?plat=Android&appType=ttjj&product=EFund&Version=1&deviceid=ssdfsdfsdf&Fcodes={}", fund_code);
     let response = client.get(url).send().await?.text().await?;
@@ -77,20 +80,23 @@ pub async fn get_expect_growth_rate_by_fund_code(fund_code: &str) -> Result<f64>
 }
 
 // 要求 growth_rate_vec 的排序顺序为时间倒序
-pub async fn calculate_jerry_index_by_growth_rate_vec(growth_rate_vec: &[f64]) -> f64 {
+async fn calculate_jerry_index_by_growth_rate_vec(growth_rate_vec: &[f64]) -> f64 {
     let d5_sum = growth_rate_vec.iter().take(5).sum::<f64>();
     let d123_sum = growth_rate_vec.iter().take(123).sum::<f64>();
     let d123_sum_d25_avg = d123_sum / 25f64;
     ((d5_sum - d123_sum_d25_avg) * 1000f64).round() / 1000f64
 }
 
-pub async fn calculate_jerry_index_by_fund_code(fund_code: &str) -> f64 {
-    let growth_rate_vec = get_growth_rate_vec_by_fund_code(fund_code).await.unwrap();
+#[cached(time = 30)]
+pub async fn calculate_jerry_index_by_fund_code(fund_code: String) -> f64 {
+    let growth_rate_vec = get_growth_rate_vec_by_fund_code(fund_code.to_string())
+        .await
+        .unwrap();
     let mut growth_rate_vec = growth_rate_vec
         .iter()
         .map(|item| item.rate)
         .collect::<Vec<f64>>();
-    let expect_growth_rate = get_expect_growth_rate_by_fund_code(fund_code)
+    let expect_growth_rate = get_expect_growth_rate_by_fund_code(fund_code.to_string())
         .await
         .unwrap();
     growth_rate_vec.push(expect_growth_rate);
@@ -98,7 +104,8 @@ pub async fn calculate_jerry_index_by_fund_code(fund_code: &str) -> f64 {
     calculate_jerry_index_by_growth_rate_vec(&growth_rate_vec).await
 }
 
-pub async fn get_baidu_index_by_keyword(keyword: &str) -> BaiduIndex {
+#[cached(time = 3600)]
+pub async fn get_baidu_index_by_keyword(keyword: String) -> BaiduIndex {
     let client = get_client().await;
     let url = format!("https://index.chinaz.com/{}/180", keyword);
     let response = client.get(url).send().await.unwrap().text().await.unwrap();

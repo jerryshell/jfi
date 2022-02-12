@@ -1,6 +1,6 @@
 #[tokio::test]
 async fn test_get_growth_rate_vec_by_fund_code() {
-    let growth_rate_vec = jfi_lib::get_growth_rate_vec_by_fund_code("110026")
+    let growth_rate_vec = jfi_lib::get_growth_rate_vec_by_fund_code("110026".to_string())
         .await
         .unwrap();
     let growth_rate = growth_rate_vec.get(0).unwrap();
@@ -10,7 +10,7 @@ async fn test_get_growth_rate_vec_by_fund_code() {
 
 #[tokio::test]
 async fn test_get_expect_growth_rate_by_fund_code() {
-    let growth_rate_vec = jfi_lib::get_expect_growth_rate_by_fund_code("110026")
+    let growth_rate_vec = jfi_lib::get_expect_growth_rate_by_fund_code("110026".to_string())
         .await
         .unwrap();
     dbg!(growth_rate_vec);
@@ -18,13 +18,13 @@ async fn test_get_expect_growth_rate_by_fund_code() {
 
 #[tokio::test]
 async fn test_calculate_jerry_index_by_fund_code() {
-    let jerry_index = jfi_lib::calculate_jerry_index_by_fund_code("110026").await;
+    let jerry_index = jfi_lib::calculate_jerry_index_by_fund_code("110026".to_string()).await;
     dbg!(jerry_index);
 }
 
 #[tokio::test]
 async fn test_get_baidu_index_by_keyword() {
-    let baidu_index = jfi_lib::get_baidu_index_by_keyword("基金").await;
+    let baidu_index = jfi_lib::get_baidu_index_by_keyword("基金".to_string()).await;
     assert_eq!(
         baidu_index.baidu_date_list.len(),
         baidu_index.baidu_all_index_list.len()
