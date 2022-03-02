@@ -1,6 +1,6 @@
 [package]
 name = "jfi_lib"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["github.com/jerryshell"]
 
@@ -8,10 +8,10 @@ authors = ["github.com/jerryshell"]
 reqwest = { version = "0.11.9", default-features = false, features = [
     "rustls-tls",
 ] }
-tokio = { version = "1.16.1", features = ["full"] }
+tokio = { version = "1.17.0", features = ["full"] }
 tokio-test = "0.4.2"
-anyhow = "1.0.53"
+anyhow = "1.0.55"
 serde = "1.0.136"
 serde_json = "1.0.79"
 serde_derive = "1.0.136"
-cached = "0.30.0"
+cached = "0.33.0"

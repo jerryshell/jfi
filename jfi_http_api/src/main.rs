@@ -1,6 +1,6 @@
 use axum::{routing::get, Router};
 use std::{env, net::SocketAddr};
-use tower_http::cors::{any, CorsLayer};
+use tower_http::cors::{Any, CorsLayer};
 
 #[tokio::main]
 async fn main() {
@@ -13,7 +13,7 @@ async fn main() {
             "/fund/baiduIndex/keyword/:keyword",
             get(jfi_http_api::get_baidu_index_by_keyword),
         )
-        .layer(CorsLayer::new().allow_origin(any()).allow_methods(any()));
+        .layer(CorsLayer::new().allow_origin(Any).allow_methods(Any));
 
     let port = env::var("PORT")
         .unwrap_or_else(|_| "8080".to_string())
