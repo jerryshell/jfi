@@ -1,6 +1,5 @@
 use axum::{extract::Path, Json};
 use cached::proc_macro::cached;
-use jfi_lib::BaiduIndex;
 use serde_json::{json, Value};
 
 #[cached(time = 30)]
@@ -20,14 +19,9 @@ pub async fn get_jerry_index_by_fund_code(Path(fund_code): Path<String>) -> Json
     }))
 }
 
-#[cached(time = 3600)]
-async fn get_baidu_index_by_keyword_cache(keyword: String) -> BaiduIndex {
-    jfi_lib::get_baidu_index_by_keyword(keyword).await
-}
-
 pub async fn get_baidu_index_by_keyword(Path(keyword): Path<String>) -> Json<Value> {
     println!("keyword {}", keyword);
-    let baidu_index = get_baidu_index_by_keyword_cache(keyword).await;
+    let baidu_index = jfi_lib::get_baidu_index_by_keyword(keyword).await.unwrap();
     println!("baidu_index {:?}", baidu_index);
     Json(json!({
         "success": true,

@@ -27,16 +27,14 @@ pub struct GrowthRate {
     pub rate: f64,
 }
 
-async fn get_client() -> reqwest::Client {
-    reqwest::Client::builder()
-        .user_agent("Chrome/97")
-        .build()
-        .unwrap()
+async fn get_client() -> Result<reqwest::Client> {
+    let client = reqwest::Client::builder().user_agent("Chrome/97").build()?;
+    Ok(client)
 }
 
 #[cached(time = 3600, result = true)]
 pub async fn get_growth_rate_vec_by_fund_code(fund_code: String) -> Result<Vec<GrowthRate>> {
-    let client = get_client().await;
+    let client = get_client().await?;
     let url = format!("https://fund.eastmoney.com/pingzhongdata/{}.js", fund_code);
     let response = client.get(url).send().await?.text().await?;
     let json_str = response
@@ -61,7 +59,7 @@ pub async fn get_growth_rate_vec_by_fund_code(fund_code: String) -> Result<Vec<G
 
 #[cached(time = 30, result = true)]
 pub async fn get_expect_growth_rate_by_fund_code(fund_code: String) -> Result<f64> {
-    let client = get_client().await;
+    let client = get_client().await?;
     let url = format!("https://fundmobapi.eastmoney.com/FundMNewApi/FundMNFInfo?plat=Android&appType=ttjj&product=EFund&Version=1&deviceid=ssdfsdfsdf&Fcodes={}", fund_code);
     let response = client.get(url).send().await?.text().await?;
     let expect_growth_rate = serde_json::from_str::<Value>(&response)
@@ -104,9 +102,9 @@ pub async fn calculate_jerry_index_by_fund_code(fund_code: String) -> f64 {
     calculate_jerry_index_by_growth_rate_vec(&growth_rate_vec).await
 }
 
-#[cached(time = 3600)]
-pub async fn get_baidu_index_by_keyword(keyword: String) -> BaiduIndex {
-    let client = get_client().await;
+#[cached(time = 3600, result = true)]
+pub async fn get_baidu_index_by_keyword(keyword: String) -> Result<BaiduIndex> {
+    let client = get_client().await?;
     let url = format!("https://index.chinaz.com/{}/180", keyword);
     let response = client.get(url).send().await.unwrap().text().await.unwrap();
     let date_str = response
@@ -118,7 +116,7 @@ pub async fn get_baidu_index_by_keyword(keyword: String) -> BaiduIndex {
         .unwrap();
     let date_str_vec = date_str
         .split(',')
-        .map(|item| item.replace("\"", ""))
+        .map(|item| item.replace('\"', ""))
         .collect::<Vec<String>>();
     let index_str = response
         .split("indexchart.baiduAllIndex = [")
@@ -133,10 +131,10 @@ pub async fn get_baidu_index_by_keyword(keyword: String) -> BaiduIndex {
         .collect::<Vec<_>>();
     let sum = index_vec.iter().sum::<usize>();
     let avg = sum / index_vec.len();
-    BaiduIndex {
+    Ok(BaiduIndex {
         baidu_date_list: date_str_vec,
         baidu_all_index_list: index_vec,
         baidu_all_index_list_sum: sum,
         baidu_all_index_list_avg: avg,
-    }
+    })
 }

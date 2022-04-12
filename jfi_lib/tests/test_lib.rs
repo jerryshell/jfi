@@ -24,7 +24,9 @@ async fn test_calculate_jerry_index_by_fund_code() {
 
 #[tokio::test]
 async fn test_get_baidu_index_by_keyword() {
-    let baidu_index = jfi_lib::get_baidu_index_by_keyword("基金".to_string()).await;
+    let baidu_index = jfi_lib::get_baidu_index_by_keyword("基金".to_string())
+        .await
+        .unwrap();
     assert_eq!(
         baidu_index.baidu_date_list.len(),
         baidu_index.baidu_all_index_list.len()
