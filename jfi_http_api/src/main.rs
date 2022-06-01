@@ -1,5 +1,4 @@
 use axum::{routing::get, Router};
-use std::{env, net::SocketAddr};
 use tower_http::cors::{Any, CorsLayer};
 
 #[tokio::main]
@@ -15,14 +14,16 @@ async fn main() {
         )
         .layer(CorsLayer::new().allow_origin(Any).allow_methods(Any));
 
-    let port = env::var("PORT")
-        .unwrap_or_else(|_| "8080".to_string())
-        .parse()
-        .expect("PORT must be a number");
+    let port = std::env::var("PORT")
+        .ok()
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(8080);
+    println!("port {}", port);
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], port));
-    println!("listening on {}", addr);
-    axum::Server::bind(&addr)
+    let address = std::net::SocketAddr::from(([0, 0, 0, 0], port));
+    println!("address on {}", address);
+
+    axum::Server::bind(&address)
         .serve(app.into_make_service())
         .await
         .unwrap();
