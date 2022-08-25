@@ -12,7 +12,7 @@ struct GrowthRateResponsePayload {
     unit_money: String,
 }
 
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BaiduIndex {
     pub baidu_date_list: Vec<String>,
