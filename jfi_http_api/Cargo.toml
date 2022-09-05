@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["github.com/jerryshell"]
 
 [dependencies]
-tokio = { version = "1.20.1", features = ["full"] }
+tokio = { version = "1.21.0", features = ["full"] }
 axum = "0.5.15"
 jfi_lib = { path = "../jfi_lib" }
 serde_json = "1.0.85"
